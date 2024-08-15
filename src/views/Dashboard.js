@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import { LeadController } from '../controllers/LeadController';
 import { UserModel } from '../models/UserModel';
 import { LeadModel } from '../models/LeadModel';
-import { ColumnsController } from '../controllers/ColumnsController';
 import { ColumnsModel } from '../models/ColumnsModel';
 
 const sharedClasses = {
@@ -52,8 +51,14 @@ function Dashboard({ onLogout }) {
         const storedColumns = ColumnsModel.getColumns(initialData);
         setLeads(userLeads);
 
-        var updatedColumns = { ...storedColumns };
-        updatedColumns = ColumnsController.verifyAndUpdateColumns(userLeads, updatedColumns); 
+        const updatedColumns = { ...storedColumns };
+
+        userLeads.forEach(lead => {
+            const columnId = determineColumnForLead(lead);
+            if (columnId && !updatedColumns['column-1'].items.includes(lead.id) && !updatedColumns['column-2'].items.includes(lead.id) && !updatedColumns['column-3'].items.includes(lead.id)) {
+                updatedColumns[columnId].items.push(lead.id);
+            }
+        });
 
         setData(prevData => ({
             ...prevData,
@@ -62,7 +67,7 @@ function Dashboard({ onLogout }) {
     }, [user.email]);
 
     useEffect(() => {
-        ColumnsModel.setColumns(data.columns)
+        localStorage.setItem('columns', JSON.stringify(data.columns));
     }, [data.columns]);
 
     const handleLogout = () => {
@@ -171,6 +176,10 @@ function Dashboard({ onLogout }) {
         setData({ ...data, columns: newColumns });
         setNewLead(false);
         toast.success('Lead criado com sucesso');
+    };
+
+    const determineColumnForLead = (lead) => {
+        return 'column-1'; // Default column
     };
 
     return (
