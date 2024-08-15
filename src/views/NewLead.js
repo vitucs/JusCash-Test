@@ -72,10 +72,10 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
                 email,
                 telephone,
                 checkboxes,
-                createdBy: user.email // Adiciona o campo createdBy com o e-mail do usuário logado
+                createdBy: user.email 
             };
-
-            onAddLead(newLead);  // Atualiza o estado no Dashboard
+            toast.error('Lead incluido com sucesso');
+            onAddLead(newLead);
         }
     };
 
