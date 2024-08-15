@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from 'uuid';
 import NewLead from './NewLead';
+import { toast } from 'react-toastify';
+import { LeadController } from '../controllers/LeadController';
+import { UserModel } from '../models/UserModel';
+import { LeadModel } from '../models/LeadModel';
+import { ColumnsController } from '../controllers/ColumnsController';
+import { ColumnsModel } from '../models/ColumnsModel';
 
 const sharedClasses = {
     primaryColor: 'text-customBlue',
@@ -37,23 +43,17 @@ function Dashboard({ onLogout }) {
     const [newLead, setNewLead] = useState(false);
     const [viewLead, setViewLead] = useState(null);
     const [leads, setLeads] = useState([]);
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = UserModel.getLoggedUser();
 
     useEffect(() => {
-        const storedLeads = JSON.parse(localStorage.getItem('leads')) || [];
-        const storedColumns = JSON.parse(localStorage.getItem('columns')) || initialData.columns;
-
+        const storedLeads = LeadModel.getLeads();
         const userLeads = storedLeads.filter(lead => lead.createdBy === user.email);
+
+        const storedColumns = ColumnsModel.getColumns(initialData);
         setLeads(userLeads);
 
-        const updatedColumns = { ...storedColumns };
-
-        userLeads.forEach(lead => {
-            const columnId = determineColumnForLead(lead);
-            if (columnId && !updatedColumns['column-1'].items.includes(lead.id) && !updatedColumns['column-2'].items.includes(lead.id) && !updatedColumns['column-3'].items.includes(lead.id)) {
-                updatedColumns[columnId].items.push(lead.id);
-            }
-        });
+        var updatedColumns = { ...storedColumns };
+        updatedColumns = ColumnsController.verifyAndUpdateColumns(userLeads, updatedColumns); 
 
         setData(prevData => ({
             ...prevData,
@@ -62,11 +62,11 @@ function Dashboard({ onLogout }) {
     }, [user.email]);
 
     useEffect(() => {
-        localStorage.setItem('columns', JSON.stringify(data.columns));
+        ColumnsModel.setColumns(data.columns)
     }, [data.columns]);
 
     const handleLogout = () => {
-        localStorage.removeItem('user');
+        UserModel.removeUser()
         onLogout();
     };
 
@@ -93,8 +93,8 @@ function Dashboard({ onLogout }) {
         const sourceIndex = data.columnOrder.indexOf(source.droppableId);
         const destinationIndex = data.columnOrder.indexOf(destination.droppableId);
 
-        // Bloqueia arrasto para a esquerda
-        if (destinationIndex < sourceIndex) {
+        // Bloqueia arrasto para a esquerda e salto de etapas
+        if (destinationIndex < sourceIndex || (destinationIndex - sourceIndex) > 1) {
             return;
         }
 
@@ -161,13 +161,7 @@ function Dashboard({ onLogout }) {
 
     const addLead = (lead) => {
         const id = uuidv4();
-        const newLead = { ...lead, id, createdBy: user.email };
-        const updatedLeads = [...leads, newLead];
-
-        // Verifica e remove duplicações
-        const uniqueLeads = Array.from(new Map(updatedLeads.map(lead => [lead.id, lead])).values());
-
-        localStorage.setItem('leads', JSON.stringify(uniqueLeads));
+        const uniqueLeads = LeadController.addLead(leads, lead, user, id);
         setLeads(uniqueLeads);
 
         const newColumns = { ...data.columns };
@@ -176,10 +170,7 @@ function Dashboard({ onLogout }) {
         }
         setData({ ...data, columns: newColumns });
         setNewLead(false);
-    };
-
-    const determineColumnForLead = (lead) => {
-        return 'column-1'; // Default column
+        toast.success('Lead criado com sucesso');
     };
 
     return (
@@ -190,18 +181,16 @@ function Dashboard({ onLogout }) {
                 <NewLead lead={viewLead} onCancel={handleCancel} />
             ) : (
                 <div>
-                    <div className={`${sharedClasses.flex} ${sharedClasses.itemsCenter} ${sharedClasses.marginY} justify-between`}>
+                    <div className={`${sharedClasses.flex} ${sharedClasses.marginY} justify-between items-start`}>
                         <img 
                             aria-hidden="true" 
                             alt="logo" 
-                            src="https://marketplace.oabsp.org.br/wp-content/uploads/2024/06/Design-sem-nome-1024x1024.png" 
-                            className={`${sharedClasses.marginRight} w-[100px] h-[100px]`}
+                            src="https://www.juscash.com.br/wp-content/themes/s3/assets/img/logo-white.svg" 
+                            className={`${sharedClasses.marginRight} w-[600px] h-[100px]`}
                         />
                         <button onClick={handleLogout} className={`${sharedClasses.secondaryColor} ${sharedClasses.secondaryColorForeground} ${sharedClasses.px} ${sharedClasses.py} ${sharedClasses.rounded}`}>Logout</button>
                     </div>
-                    <h1 className={`${sharedClasses.text3xl} ${sharedClasses.fontWeightBold} ${sharedClasses.primaryColor}`}>Bem-vindo, {user.email}!</h1>
-
-                    <div className={sharedClasses.marginY}>
+                    <div className={`${sharedClasses.marginY} flex justify-end`}>
                         <button 
                             onClick={handleNewLead}
                             className={`${sharedClasses.secondaryColor} ${sharedClasses.secondaryColorForeground} ${sharedClasses.px} ${sharedClasses.py} ${sharedClasses.rounded}`}

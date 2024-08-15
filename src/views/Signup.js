@@ -1,26 +1,6 @@
 import React, { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-
-function validatePassword(password) {
-    const minLength = 8;
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
-    const hasNumericChar = /[0-9]/;
-    const hasAlphanumericChar = /[a-zA-Z]/;
-
-    if (password.length < minLength) {
-        return 'A senha deve ter pelo menos 8 caracteres.';
-    }
-    if (!hasSpecialChar.test(password)) {
-        return 'A senha deve conter pelo menos um caractere especial.';
-    }
-    if (!hasNumericChar.test(password)) {
-        return 'A senha deve conter pelo menos um caractere numérico.';
-    }
-    if (!hasAlphanumericChar.test(password)) {
-        return 'A senha deve conter pelo menos um caractere alfanumérico.';
-    }
-    return null; // Senha válida
-}
+import { AuthController } from '../controllers/AuthController';
 
 function Signup({ onSignup }) {
     const [name, setName] = useState('');
@@ -32,28 +12,8 @@ function Signup({ onSignup }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const passwordError = validatePassword(password);
-
-        if (passwordError) {
-            alert(passwordError);
-            return;
-        }
-
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const userExists = users.some(user => user.email === email);
-
-        if (userExists) {
-            alert('Nome de usuário já existe');
-        } else if (password !== passwordConfirm) {
-            alert('As senhas não são iguais');
-        } else {
-            const newUser = { email, password };
-            localStorage.setItem('users', JSON.stringify([...users, newUser]));
-
-            localStorage.setItem('user', JSON.stringify({ email }));
-
-            onSignup(email);
-        }
+        const signup = AuthController.signup(name, email, password, passwordConfirm);
+        onSignup(signup);
     };
 
     const handleTogglePassword = () => {

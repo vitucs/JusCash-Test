@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AuthController } from '../controllers/AuthController';
 
 function Login({ onLogin, onSignupClick }) {
     const [email, setEmail] = useState('');
@@ -6,16 +7,8 @@ function Login({ onLogin, onSignupClick }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(user => user.email === email && user.password === password);
-
-        if (user) {
-            localStorage.setItem('user', JSON.stringify({ email }));
-            onLogin(email);
-        } else {
-            alert('Credenciais inválidas');
-        }
+        const logged = AuthController.login(email, password);
+        onLogin(logged);
     };
 
     return (

@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { UserModel } from '../models/UserModel';
+import { LeadModel } from '../models/LeadModel';
 
 const inputClasses = "mt-1 block w-full border border-zinc-300 dark:border-zinc-600 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500";
 const labelClasses = "block text-sm font-medium text-zinc-700 dark:text-zinc-300";
@@ -17,8 +20,7 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
         'credito-do-autor': false
     });
 
-    // Recuperar o usuário logado do localStorage
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = UserModel.getLoggedUser();
 
     useEffect(() => {
         if (lead) {
@@ -59,11 +61,11 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const leads = JSON.parse(localStorage.getItem('leads')) || [];
+        const leads = LeadModel.getLeads();
         const leadExists = leads.some(existingLead => existingLead.email === email);
 
         if (leadExists && !lead) {
-            alert('Já existe um lead com esse email');
+            toast.error('Já existe um lead com esse email');
         } else {
             const newLead = {
                 name,

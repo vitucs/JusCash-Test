@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Login from './Login';
-import Signup from './Signup';
-import Dashboard from './Dashboard';
+import Login from './views/Login';
+import Signup from './views/Signup';
+import Dashboard from './views/Dashboard';
 import './index.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -31,6 +33,7 @@ function App() {
 
     return (
         <div className='flex items-center justify-center min-h-screen bg-gray-100'>
+            <ToastContainer />
             {user ? (
                 <Dashboard onLogout={handleLogout} />
             ) : (
