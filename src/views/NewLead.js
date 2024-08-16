@@ -61,7 +61,8 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const leads = LeadModel.getLeads();
+        const leads = JSON.parse(LeadModel.getLeads());
+        
         const leadExists = leads.some(existingLead => existingLead.email === email);
 
         if (leadExists && !lead) {

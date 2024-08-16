@@ -30,9 +30,9 @@ const sharedClasses = {
 
 const initialData = {
     columns: {
-        'column-1': { id: 'column-1', title: 'Cliente Potencial', items: [], createdBy: [] },
-        'column-2': { id: 'column-2', title: 'Dados Confirmados', items: [], createdBy: []  },
-        'column-3': { id: 'column-3', title: 'Análise do Lead', items: [], createdBy: []  },
+        'column-1': { id: 'column-1', title: 'Cliente Potencial', items: [] },
+        'column-2': { id: 'column-2', title: 'Dados Confirmados', items: [] },
+        'column-3': { id: 'column-3', title: 'Análise do Lead', items: [] },
     },
     columnOrder: ['column-1', 'column-2', 'column-3'],
 };
@@ -52,11 +52,11 @@ function Dashboard({ onLogout }) {
         
         const userLeads = storedLeads.filter(lead => lead.createdBy === UserModel.getLoggedUser());
         
-        const storedColumns = ColumnsModel.getColumns(initialData)
+        const storedColumns = ColumnsModel.getColumns(initialData);
         setLeads(userLeads);
 
         const updatedColumns = { ...storedColumns };
-                
+        
         userLeads.forEach(lead => {
             const columnId = determineColumnForLead(lead);
             if (columnId && !updatedColumns['column-1'].items.includes(lead.id) && !updatedColumns['column-2'].items.includes(lead.id) && !updatedColumns['column-3'].items.includes(lead.id)) {
@@ -70,7 +70,7 @@ function Dashboard({ onLogout }) {
         }));
     }, [user.email]);
 
-    useEffect(() => {        
+    useEffect(() => {
         localStorage.setItem('columns', JSON.stringify(data.columns));
     }, [data.columns]);
 
@@ -176,7 +176,6 @@ function Dashboard({ onLogout }) {
         const newColumns = { ...data.columns };
         if (!newColumns['column-1'].items.includes(id)) {
             newColumns['column-1'].items.push(id);
-            newColumns['column-1'].createdBy.push(UserModel.getLoggedUser());
         }
         setData({ ...data, columns: newColumns });
         setNewLead(false);
@@ -220,12 +219,8 @@ function Dashboard({ onLogout }) {
                                 const items = column.items.map(itemId => {
                                     
                                     const lead = leads.find(lead => lead.id === itemId);
-                                    if (lead?.createdBy === UserModel.getLoggedUser()) {
-                                        return lead;
-                                    } else {
-                                        return null;
-                                    }
-                                }).filter(item => item !== null);
+                                    return lead ? lead : { id: itemId, name: 'Item não encontrado' };
+                                });
 
                                 return (
                                     <Droppable key={column.id} droppableId={column.id}>
@@ -236,7 +231,7 @@ function Dashboard({ onLogout }) {
                                                 className="w-1/3 bg-gray-200 p-4 "
                                             >
                                                 <h2 className="text-lg font-semibold mb-2">{column.title}</h2>
-                                                {items && items.map((item, index) => (
+                                                {items && items.filter(item => item.createdBy === UserModel.getLoggedUser()).map((item, index) => (
                                                     <Draggable key={item.id} draggableId={item.id} index={index}>
                                                         {(provided) => (
                                                             <div

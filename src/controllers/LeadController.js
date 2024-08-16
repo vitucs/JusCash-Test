@@ -9,9 +9,8 @@ export const LeadController = {
 
     addLead: (leads, lead, user, id) => {
         const newLead = { ...lead, id, createdBy: user };
-        const updatedLeads = [...leads, newLead];        
-
-        LeadModel.saveLeads(updatedLeads);
+        const updatedLeads = [...leads, newLead];                
+        LeadModel.saveLeads(JSON.stringify(updatedLeads));
         return updatedLeads;
     },
 
