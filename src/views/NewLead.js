@@ -74,7 +74,6 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
                 checkboxes,
                 createdBy: user.email 
             };
-            toast.error('Lead incluido com sucesso');
             onAddLead(newLead);
         }
     };

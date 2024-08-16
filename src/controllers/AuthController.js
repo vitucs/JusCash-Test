@@ -22,8 +22,25 @@ export const AuthController = {
         return UserModel.isAuthenticated();
     },
     signup: (name, email, password, passwordConfirm) => {
-        const passwordError = this.validatePassword(password);
+        const minLength = 8;
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+        const hasNumericChar = /[0-9]/;
+        const hasAlphanumericChar = /[a-zA-Z]/;
+        var passwordError = null;
 
+        if (password.length < minLength) {
+             passwordError = 'A senha deve ter pelo menos 8 caracteres.';
+        }
+        if (!hasSpecialChar.test(password)) {
+             passwordError = 'A senha deve conter pelo menos um caractere especial.';
+        }
+        if (!hasNumericChar.test(password)) {
+             passwordError = 'A senha deve conter pelo menos um caractere numérico.';
+        }
+        if (!hasAlphanumericChar.test(password)) {
+             passwordError = 'A senha deve conter pelo menos um caractere alfanumérico.';
+        }
+        
         if (passwordError) {
             toast.error(passwordError);
             return;
@@ -43,25 +60,5 @@ export const AuthController = {
             toast.success('Usuário criado com sucesso');
             return email;
         }
-    },
-    validatePassword(password) {
-        const minLength = 8;
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
-        const hasNumericChar = /[0-9]/;
-        const hasAlphanumericChar = /[a-zA-Z]/;
-    
-        if (password.length < minLength) {
-            return 'A senha deve ter pelo menos 8 caracteres.';
-        }
-        if (!hasSpecialChar.test(password)) {
-            return 'A senha deve conter pelo menos um caractere especial.';
-        }
-        if (!hasNumericChar.test(password)) {
-            return 'A senha deve conter pelo menos um caractere numérico.';
-        }
-        if (!hasAlphanumericChar.test(password)) {
-            return 'A senha deve conter pelo menos um caractere alfanumérico.';
-        }
-        return null;
     }
 };

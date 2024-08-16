@@ -8,7 +8,9 @@ function Login({ onLogin, onSignupClick }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         const logged = AuthController.login(email, password);
-        onLogin(logged);
+        if (logged) {
+            onLogin(logged);
+        }
     };
 
     return (

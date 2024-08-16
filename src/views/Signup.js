@@ -13,7 +13,9 @@ function Signup({ onSignup }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         const signup = AuthController.signup(name, email, password, passwordConfirm);
-        onSignup(signup);
+        if (signup) {
+            onSignup(signup);
+        }
     };
 
     const handleTogglePassword = () => {
