@@ -62,14 +62,15 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
         e.preventDefault();
 
         const leads = LeadModel.getLeads();
-
         var leadExists = false;
-        leadExists = JSON.parse(leads).filter(existingLead => {
-            if(existingLead.email === email){
-                return existingLead;
-            }
-        });
-        console.log(leadExists);
+
+        if(JSON.parse(leads).length > 0) {
+            leadExists = JSON.parse(leads).filter(existingLead => {
+                if(existingLead.email === email){
+                    return existingLead;
+                }
+            });
+        }
         
 
         if (leadExists.length>0) {
