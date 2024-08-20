@@ -61,11 +61,18 @@ const NewLead = ({ onAddLead, lead, onCancel }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const leads = JSON.parse(LeadModel.getLeads());
-        
-        const leadExists = leads.some(existingLead => existingLead.email === email);
+        const leads = LeadModel.getLeads();
 
-        if (leadExists && !lead) {
+        var leadExists = false;
+        leadExists = JSON.parse(leads).filter(existingLead => {
+            if(existingLead.email === email){
+                return existingLead;
+            }
+        });
+        console.log(leadExists);
+        
+
+        if (leadExists.length>0) {
             toast.error('Já existe um lead com esse email');
         } else {
             const newLead = {
